@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "CommonJS",
+        "declaration": true,
+        "strict": true,
+        "resolveJsonModule": true,
+        "noImplicitAny": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "outDir": "./dist"
+    },
+    "incluse": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
