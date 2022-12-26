@@ -1,44 +1,9 @@
 'use strict'
 
 import * as fs from 'fs';
+import * as _ from 'lodash';
 import { Memory } from './memory';
 const lib = new Memory();
-
-type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
-  ? Acc[number]
-  : Enumerate<N, [...Acc, Acc['length']]>
-
-type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>
-
-var getDeepKeysAdvanced = function (obj: object): any[] {
-    var keys: any[] = [];
-    for(var key in obj) {
-        if(typeof obj[key] === "object" && !Array.isArray(obj[key])) {
-            var subkeys = getDeepKeys(obj[key]);
-            keys = keys.concat(
-                subkeys.map(
-                    function(subkey) {
-                        return key + "." + subkey;
-                    }
-                )
-            );
-        } else if(Array.isArray(obj[key])) {
-            for( var i=0;i<obj[key].length;i++){
-                var subkeys = getDeepKeys(obj[key][i]);
-                keys = keys.concat(
-                    subkeys.map(
-                        function(subkey) {
-                            return key + "[" + i + "]" + "." + subkey;
-                        }
-                    )
-                );
-            }
-        } else {
-            keys.push(key);
-        }
-    }
-    return keys;
-}
 
 var getDeepKeys = (obj: object): any[] => {
     var keys: any[] = [];
@@ -72,18 +37,6 @@ function deepFind(obj: object, path: string): any {
     return current;
 }
 
-function setDeepKey(obj: object, path: string, value: any): any {
-    var schema = obj,
-        pList = path.split('.'),
-        len = pList.length;
-    for (let i = 0; i < len - 1; i++) {
-        var elem = pList[i];
-        if(!schema[elem]) schema[elem] = {}
-                          schema = schema[elem];
-    }
-    schema[pList[len - 1]] = value;
-    return schema;
-}
 
 export class Database {
 
@@ -104,7 +57,7 @@ export class Database {
         settings?: {
             alerts: boolean | undefined,
             overwrite: boolean | undefined
-        }
+        } | undefined
     ) {
         this.tablePath = TablePath;
         settings && settings.alerts
@@ -179,40 +132,51 @@ export class Database {
         )
         data = JSON.parse(data);
         if ((options.key).includes('.') || (options.key).includes('~')) {
-            var uniq = [...new Set((options.key).split((options.key).includes('~') ? '~' : /[.]/gi))];
+            var uniq = (options.key).split((options.key).includes('~') ? '~' : /[.]/gi);
+            var uniqq = [...uniq]
+            uniqq.shift()
             if (uniq.includes('')) uniq.splice(uniq.indexOf(''), 1);
-            if (uniq.length > 2 || uniq.length < 1) {
-                const syntaxError = 'key with pointer must have 2 sides: main key and last key, you want to get. ' + (options.key).includes('~') ? '"~" means to find it. Returns an array: any[]' : 'Amount of dots mean how deep is it.';
+            if (uniq.length < 1) {
+                const syntaxError = 'key with pointer must have 2 or more sides. ' + (options.key).includes('~') ? '"~" means to find it. Returns an object' : 'Amount of dots mean how deep is it.';
                 throw new Error(syntaxError);
             }
             var deepkeys = getDeepKeys(data[uniq[0]]);
-
-            var filter: any[] = [];
-            deepkeys.forEach(
-                (deepkey: string) => {
-                    if (deepkey.endsWith(uniq[1])) filter.push(deepkey);
-                }
-            )
-            if ((options.key).includes('~')) {
-                var result: object = {};
-                filter.forEach(
-                    (item: any) => {
-                        result[item] = deepFind(data[uniq[0]], item)
-                    } 
-                )
-                return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
-            } else {
-                var result: object = {};
-                var amount = ((options.key).split('')).filter((e: string) => e === '.').length;
-                filter.forEach(
-                    (item: any) => {
-                        if (item.split('.').length == amount) {
-                            result[item] = deepFind(data[uniq[0]], item)
+            if (deepkeys != undefined) {
+                var filter: any[] = [];
+                if (uniq.length > 1) {
+                    deepkeys.forEach(
+                        (deepkey: string) => {
+                            if (deepkey == uniqq.join('.')) filter.push(deepkey);
                         }
-                    } 
-                )
-                return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
-            }
+                    )
+                } else {
+                    deepkeys.forEach(
+                        (deepkey: string) => {
+                            if (deepkey.endsWith(uniq[uniq.length - 1])) filter.push(deepkey);
+                        }
+                    )
+                }
+                if ((options.key).includes('~')) {
+                    var result: object = {};
+                    filter.forEach(
+                        (item: any) => {
+                            result[item] = deepFind(data[uniq[0]], item)
+                        } 
+                    )
+                    return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
+                } else {
+                    var result: object = {};
+                    var amount = ((options.key).split('')).filter((e: string) => e === '.').length;
+                    filter.forEach(
+                        (item: any) => {
+                            if (item.split('.').length == amount) {
+                                result[item] = deepFind(data[uniq[0]], item)
+                            }
+                        } 
+                    )
+                    return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
+                }
+            } else if (this.alerts == true) console.log("Returned 0: couldn't find anuthing with such key.")
         } else return data[options.key];
     }
 
@@ -244,10 +208,11 @@ export class Database {
             throw new Error(pointerError);
         }
         if ((options.key).includes('.')) {
-            var result = deepFind(data, options.key)
+            let result = deepFind(data, options.key)
             if (result != undefined) {
-                var replacement = setDeepKey(data, options.key, options.value);
-            }
+                _.set(data, options.key, options.value);
+                fs.writeFileSync(this.tablePath+'/'+table+'.json', JSON.stringify(data, null, 2));
+            } else if (this.alerts == true) console.log("Returned 0: couldn't find anuthing with such key.")
         }
     }
 }
