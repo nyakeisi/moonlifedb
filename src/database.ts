@@ -43,6 +43,7 @@ export class Database {
     public tablePath: string;
     protected alerts: boolean;
     protected overwrite: boolean;
+    protected useTabulation: boolean;
 
     /**
      * The main class of an insta-write database app.
@@ -56,7 +57,8 @@ export class Database {
         TablePath: string, 
         settings?: {
             alerts: boolean | undefined,
-            overwrite: boolean | undefined
+            overwrite: boolean | undefined,
+            useTabulation: boolean | undefined
         } | undefined
     ) {
         this.tablePath = TablePath;
@@ -66,6 +68,9 @@ export class Database {
         settings && settings.overwrite
             ? this.overwrite = settings.overwrite
             : this.overwrite = false
+        settings && settings.useTabulation
+            ? this.useTabulation = settings.useTabulation
+            : this.useTabulation = false
         lib.checkDir(this.tablePath)
     }
 
@@ -73,7 +78,7 @@ export class Database {
      * Create a line in database. Allows to overwrite or make a copy. To edit, use Database#edit()
      * @example database.write('accounts', { key: 'keisi', value: { password: 'qwerty123' } })
      * @param {object} options
-     * @param table define where to put data.
+     * @param table define where to work with data.
      * @param options.key unique key of a line in database.
      * @param options.value
      * @param options.overwrite (true by default) if false, adds a numeric index to key at the end to define copy.
@@ -96,10 +101,17 @@ export class Database {
         )
         data              = JSON.parse(data);
         data[options.key] = options.value
-        fs.writeFileSync(
-            this.tablePath + '/' + table + '.json',
-            JSON.stringify(data)
-        )
+        if (this.useTabulation == true) {
+            fs.writeFileSync(
+                this.tablePath + '/' + table + '.json',
+                JSON.stringify(data, null, '\t')
+            )
+        } else {
+            fs.writeFileSync(
+                this.tablePath + '/' + table + '.json',
+                JSON.stringify(data)
+            )
+        }
         return;
     }
 
@@ -107,7 +119,7 @@ export class Database {
      * Read and return a line from the database.
      * @example database.read('accounts', { key: 'User'})
      * @param {object} options
-     * @param table define where to put data.
+     * @param table define where to work with data.
      * @param options.key unique key of a line in database
      * there are also pointers to get specific subkey.
      * "." to specify strictly how deep it is:
@@ -176,7 +188,7 @@ export class Database {
                     )
                     return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
                 }
-            } else if (this.alerts == true) console.log("Returned 0: couldn't find anuthing with such key.")
+            } else if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
         } else return data[options.key];
     }
 
@@ -184,17 +196,19 @@ export class Database {
      * Edits a line in database. You can\'t create a new line using this method.
      * @example database.edit('accounts', { key: 'keisi', value: { password: 'qwerty123' } })
      * @param {object} options
-     * @param table define where to put data.
+     * @param table define where to work with data.
      * @param options.key unique key of a line in database. If you want to edit a subkey of it, use pointers instead.
      * @param options.value
+     * @param options.newline if you want to add a new line instead of editting existing one. Works with pointers.
      * @example database.edit('accounts', { key: 'keisi.data.personal.password', value: 'qwerty123' })
-     * Warning: you cant use ".." or "~" pointers. This requires a strict path to the subkey. Use full path separated by dots: "keisi.data.personal.password"
+     * Warning: you can't use ".." or "~" pointers. This requires a strict path to the subkey. Use full path separated by dots: "keisi.data.personal.password"
      */
     public edit (
         table: string,
         options: {
             key: string, 
-            value: any
+            value: any,
+            newline?: boolean|undefined
         },
     ): void
     {
@@ -208,11 +222,89 @@ export class Database {
             throw new Error(pointerError);
         }
         if ((options.key).includes('.')) {
-            let result = deepFind(data, options.key)
-            if (result != undefined) {
+            if (options.newline && options.newline == true) {
                 _.set(data, options.key, options.value);
-                fs.writeFileSync(this.tablePath+'/'+table+'.json', JSON.stringify(data, null, 2));
-            } else if (this.alerts == true) console.log("Returned 0: couldn't find anuthing with such key.")
+                if (this.useTabulation == true) {
+                    fs.writeFileSync(
+                        this.tablePath + '/' + table + '.json',
+                        JSON.stringify(data, null, '\t')
+                    )
+                } else {
+                    fs.writeFileSync(
+                        this.tablePath + '/' + table + '.json',
+                        JSON.stringify(data)
+                    )
+                }
+            } else {
+                let result = deepFind(data, options.key)
+                if (result != undefined) {
+                    _.set(data, options.key, options.value);
+                    if (this.useTabulation == true) {
+                        fs.writeFileSync(
+                            this.tablePath + '/' + table + '.json',
+                            JSON.stringify(data, null, '\t')
+                        )
+                    } else {
+                        fs.writeFileSync(
+                            this.tablePath + '/' + table + '.json',
+                            JSON.stringify(data)
+                        )
+                    }
+                } else if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
+            }
+        } else {
+            data[options.key] = options.value;
+            if (this.useTabulation == true) {
+                fs.writeFileSync(
+                    this.tablePath + '/' + table + '.json',
+                    JSON.stringify(data, null, '\t')
+                )
+            } else {
+                fs.writeFileSync(
+                    this.tablePath + '/' + table + '.json',
+                    JSON.stringify(data)
+                )
+            }
+        }
+    }
+
+    /**
+     * Removes a line in database. 
+     * @example database.remove('accounts', { key: 'keisi' })
+     * @param {object} options
+     * @param table define where to work with data.
+     * @param options.key unique key of a line in database.
+     * Warning: you can't use pointers.
+     */
+    public remove (
+        table: string,
+        options: {
+            key: string, 
+            value: any
+        },
+    ): void
+    {
+        var data: any = fs.readFileSync(
+            this.tablePath + '/' + table + '.json',
+            'utf8'
+        )
+        data = JSON.parse(data);
+        if (data[options.key] == undefined) {
+            if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
+        }
+        else {
+            data[options.key] = undefined;
+            if (this.useTabulation == true) {
+                fs.writeFileSync(
+                    this.tablePath + '/' + table + '.json',
+                    JSON.stringify(data, null, '\t')
+                )
+            } else {
+                fs.writeFileSync(
+                    this.tablePath + '/' + table + '.json',
+                    JSON.stringify(data)
+                )
+            }
         }
     }
 }
