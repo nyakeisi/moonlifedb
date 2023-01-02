@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import { Memory } from './memory';
+import { LocalStorage, ExternalConnection } from './adapter';
 const lib = new Memory();
 
 var getDeepKeys = (obj: object): any[] => {
@@ -37,31 +38,45 @@ function deepFind(obj: object, path: string): any {
     return current;
 }
 
-
 export class Database {
 
+    public adapter: LocalStorage | ExternalConnection;
+
     public tablePath: string;
+    public ip: string | undefined;
+    public port: string | undefined;
+
     protected alerts: boolean;
     protected overwrite: boolean;
     protected useTabulation: boolean;
 
     /**
      * The main class of an insta-write database app.
-     * @example const database = new Database('dir', { alerts: true, overwrite: false });
-     * @param {String} TablePath A path, that uses your database. (Supports multiple databases)
+     * @example const database = new Database(adapter, { alerts: true, overwrite: false });
+     * 
+     * @param adapter
      * @param settings
      * @param alerts - Alert writes and removes to the console.
-     * @param overwritre - global default parameter for overwriting.
+     * @param overwrite - Global default parameter for overwriting.
+     * @param useTabulation - Use tabulation when formatting json file 
      */
     constructor(
-        TablePath: string, 
+        adapter: LocalStorage | ExternalConnection,
         settings?: {
             alerts: boolean | undefined,
             overwrite: boolean | undefined,
             useTabulation: boolean | undefined
         } | undefined
     ) {
-        this.tablePath = TablePath;
+        this.adapter = adapter;
+        this.tablePath = this.adapter.tablePath
+
+        // for external connection
+        if (this.adapter instanceof ExternalConnection) {
+            this.ip = this.adapter.localip
+            this.port = this.adapter.port
+        }
+
         settings && settings.alerts
             ? this.alerts = settings.alerts
             : this.alerts = false
@@ -77,6 +92,7 @@ export class Database {
     /**
      * Create a line in database. Allows to overwrite or make a copy. To edit, use Database#edit()
      * @example database.write('accounts', { key: 'keisi', value: { password: 'qwerty123' } })
+     * 
      * @param {object} options
      * @param table define where to work with data.
      * @param options.key unique key of a line in database.
@@ -122,9 +138,11 @@ export class Database {
      * @param table define where to work with data.
      * @param options.key unique key of a line in database
      * there are also pointers to get specific subkey.
+     * 
      * "." to specify strictly how deep it is:
      * @example database.read('accounts', { key: 'User..id'} 
      * @example { User: { info: { data: { id: '123' } } } } returns { id: '123' }, that is pointer of 2
+     * 
      * and "~" to just find it:
      * @example database.read('accounts', { key: 'User~data'} 
      * @example { User: { info: { data: { id: '123' } } } } returns { id: '123' }.
@@ -135,7 +153,7 @@ export class Database {
         table: string,
         options: {
             key: string
-        },
+        }
     ): any | object
     {
         let data: any = fs.readFileSync(
@@ -195,6 +213,7 @@ export class Database {
     /**
      * Edits a line in database. You can\'t create a new line using this method.
      * @example database.edit('accounts', { key: 'keisi', value: { password: 'qwerty123' } })
+     * 
      * @param {object} options
      * @param table define where to work with data.
      * @param options.key unique key of a line in database. If you want to edit a subkey of it, use pointers instead.
@@ -271,6 +290,7 @@ export class Database {
     /**
      * Removes a line in database. 
      * @example database.remove('accounts', { key: 'keisi' })
+     * 
      * @param {object} options
      * @param table define where to work with data.
      * @param options.key unique key of a line in database.
@@ -307,4 +327,32 @@ export class Database {
             }
         }
     }
+
+    /**
+     * Checks if key exists in database. 
+     * @example database.check('accounts', { key: 'keisi' })
+     * 
+     * @param {object} options
+     * @param table define where to work with data.
+     * @param options.key unique key of a line in database.
+     * Warning: you can't use pointers.
+     */
+    public check (
+        table: string,
+        options: {
+            key: string,
+        },
+    ): boolean
+    {
+        var data: any = fs.readFileSync(
+            this.tablePath + '/' + table + '.json',
+            'utf8'
+        )
+        return (
+            JSON.parse(data)[options.key] == undefined
+                ? false
+                : true
+        )
+    }
 }
+
