@@ -2,8 +2,9 @@
 
 ## What's new?
 
-Version: **1.0 ALPHA 2** <br />
+Version: **1.0 ALPHA 4** <br />
 See full documentation: https://nyakeisi.github.io/moonlifedb (LATER) <br />
+also released on npmjs.com: https://www.npmjs.com/package/moonlifedb <br /> <br />
 
 ENG:<br />
 We made basic database functions: you can now use it!<br />
