@@ -10,13 +10,13 @@ export class ExternalConnection {
     public port: string;
 
     /**
+     * NOT SUPPORTED YET
+     * 
      * ExternalConnection adapter for the database app
      * @param options
      * @param path a path to the folder, where to store data
      * @param ip
      * @param port
-     * 
-     * WARNING: CURRENTLY NOT SUPPORTED
      */
 
     constructor(

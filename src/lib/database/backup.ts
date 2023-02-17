@@ -10,13 +10,13 @@ interface TableParameters {
     [index: string]: ( 'auto-increment' | 'empty' | 'boolean' | 'string' | 'number' | 'decimal' | 'decimal' | 'hex' | 'binary' | 'octal' | 'bigint' | 'unknown' | 'object' | 'array' | 'infinity' | 'any'  )[]
 }
 
-export class TableCreator {
+export class BackupManager {
 
     public adapter: LocalStorage | ExternalConnection
+    public backupAdapter: LocalStorage;
 
     public tablePath: string;
-    public ip: string | undefined;
-    public port: string | undefined;
+    public backupPath: string;
 
     /**
      * NOT SUPPORTED YET
@@ -27,31 +27,13 @@ export class TableCreator {
      */
     constructor(
         adapter: LocalStorage | ExternalConnection,
+        backupAdapter: LocalStorage
     ) {
         this.adapter = adapter;
+        this.backupAdapter = backupAdapter;
         this.tablePath = this.adapter.tablePath
-
-        // for external connection
-        if (this.adapter instanceof ExternalConnection) {
-            this.ip = this.adapter.localip
-            this.port = this.adapter.port
-        }
-
+        this.backupPath = this.backupAdapter.tablePath
         lib.checkDir(this.tablePath)
-    }
-
-    /**
-     * 
-     * @example 
-     */
-    public create (
-        name: string,
-        strict?: {
-            data: TableParameters,
-        } | undefined,
-    ): void 
-    {
-        if (strict) console.log(strict.data)
     }
 }
 

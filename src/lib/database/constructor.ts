@@ -1,1 +1,2 @@
-export * from './constructors/formatter';
+export * from './constructors/ObjectFormatter';
+export * from './constructors/ShardCollection';
