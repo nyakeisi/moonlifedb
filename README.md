@@ -1,17 +1,88 @@
 # MoonlifeDB: a new way to work with databases.
 
+A better version of `ls-jsondb` by me <br />
+Huge thanks to Phntasm for helping <br />
+
 ## What's new?
 
-Version: **1.0 ALPHA 4** <br />
-See full documentation: https://nyakeisi.github.io/moonlifedb (LATER) <br />
-also released on npmjs.com: https://www.npmjs.com/package/moonlifedb <br /> <br />
+Version: **1.0.0 ALPHA 6** <br />
++ Added SnowFlake class to work with snowflake ID generator. <br />
++ Added adapters support, but currently only LocalStorage is supported. <br />
++ Fixed a lot of stuff with main methods of the Database class. <br /><br />
 
-ENG:<br />
-We made basic database functions: you can now use it!<br />
-Also thanks Phntasm for `Database#edit()` method. He's still working on binary database, so stay tuned!<br /><br />
-Team Moonlife<br /><br />
+See the main documentation down below. <br />
 
-RUS:<br />
-Мы сделали основные функции базы данных: теперь ей можно пользоваться!<br />
-Также спасибо Phntasm за работу над `Database#edit()` методом. Он всё ещё работает над бинарной датабазой, поэтому ожидайте!<br /><br />
-Команда Moonlife<br /><br />
+## Documentation
+
+Full documentation will be released later. <br />
+If you need help, you can contact me: Squeens#6280 <br /> <br />
+
+How to import: <br />
+
+### Database
+
+```js
+// old javascript
+const { Database, LocalStorage } = require("moonlifedb");
+const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
+const db = new Database(adapter);
+```
+
+```ts
+// new javascript and typescript
+import { Database, LocalStorage } from "moonlifedb";
+const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
+const db = new Database(adapter);
+```
+
+### SnowFlake
+
+```js
+// old javascript
+const { Snowflake } = require("moonlifedb");
+const snowflake = new SnowFlake(
+    {
+        worker: 1,
+        epoch: 1672531200000 // example: January 1st 2023 12:00 AM
+    }
+);
+```
+
+```ts
+// new javascript and typescript
+import { SnowFlake } from "moonlifedb";
+const snowflake = new SnowFlake(
+    {
+        worker: 1,
+        epoch: 1672531200000 // example: January 1st 2023 12:00 AM
+    }
+);
+```
+
+### Table
+
+```js
+// old javascript
+const { CosmeticConstructor } = require("moonlifedb");
+const table = new CosmeticConstructor();
+```
+
+```ts
+// new javascript and typescript
+import { CosmeticConstructor } from "moonlifedb";
+const table = new CosmeticConstructor();
+```
+
+### Token
+
+```js
+// old javascript
+const { Token } = require("moonlifedb");
+const table = new Token();
+```
+
+```ts
+// new javascript and typescript
+import { Token } from "moonlifedb";
+const table = new Token();
+```
