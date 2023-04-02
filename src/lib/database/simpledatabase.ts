@@ -150,55 +150,61 @@ export class SimpleDatabase {
                     // overload multiple
                     actionOrActions.forEach(
                         (action: any) => {
-                            action.overwrite
-                                ? action.overwrite = action.overwrite
-                                : action.overwrite = false
+                            var overwrite: boolean;
+                            action.overwrite != undefined
+                                ? overwrite = action.overwrite
+                                : overwrite = true
                             let data: any = fs.readFileSync(
                                 this.tablePath + '/' + tableParameter + '.json',
                                 'utf8'
                             )
-                            data                     = JSON.parse(data);
-                            if (data[action.key] != undefined && action.overwrite == false) reject("Unable to create line: overwrite protection");
-                            data[action.key] = action.value
-                            if (this.useTabulation != undefined) {
-                                fs.writeFileSync(
-                                    this.tablePath + '/' + tableParameter + '.json',
-                                    JSON.stringify(data, null, this.useTabulation.whitespace)
-                                )
-                            } else {
-                                fs.writeFileSync(
-                                    this.tablePath + '/' + tableParameter + '.json',
-                                    JSON.stringify(data)
-                                )
+                            data = JSON.parse(data);
+                            if (data[action.key] != undefined && overwrite == false) return;
+                            else {
+                                data[action.key] = action.value
+                                if (this.useTabulation != undefined) {
+                                    fs.writeFileSync(
+                                        this.tablePath + '/' + tableParameter + '.json',
+                                        JSON.stringify(data, null, this.useTabulation.whitespace)
+                                    )
+                                } else {
+                                    fs.writeFileSync(
+                                        this.tablePath + '/' + tableParameter + '.json',
+                                        JSON.stringify(data)
+                                    )
+                                }
+                                resolve(action.value)
                             }
-                            resolve(action.value)
                         }
                     )
                 } 
                 else {
                     // overload single
-                    actionOrActions.overwrite
-                        ? actionOrActions.overwrite = actionOrActions.overwrite
-                        : actionOrActions.overwrite = false
+                    var overwrite: boolean;
+                    actionOrActions.overwrite != undefined
+                        ? overwrite = actionOrActions.overwrite
+                        : overwrite = true
                     let data: any = fs.readFileSync(
                         this.tablePath + '/' + tableParameter + '.json',
                         'utf8'
                     )
-                    data                      = JSON.parse(data);
-                    if (data[actionOrActions.key] != undefined && actionOrActions.overwrite == false) reject("Unable to create line: overwrite protection");
-                    data[actionOrActions.key] = actionOrActions.value
-                    if (this.useTabulation != undefined) {
-                        fs.writeFileSync(
-                            this.tablePath + '/' + tableParameter + '.json',
-                            JSON.stringify(data, null, this.useTabulation.whitespace)
-                        )
-                    } else {
-                        fs.writeFileSync(
-                            this.tablePath + '/' + tableParameter + '.json',
-                            JSON.stringify(data)
-                        )
+                    data = JSON.parse(data);
+                    if (data[actionOrActions.key] != undefined && overwrite == false) return;
+                    else {
+                        data[actionOrActions.key] = actionOrActions.value
+                        if (this.useTabulation != undefined) {
+                            fs.writeFileSync(
+                                this.tablePath + '/' + tableParameter + '.json',
+                                JSON.stringify(data, null, this.useTabulation.whitespace)
+                            )
+                        } else {
+                            fs.writeFileSync(
+                                this.tablePath + '/' + tableParameter + '.json',
+                                JSON.stringify(data)
+                            )
+                        }
+                        resolve(actionOrActions.value)
                     }
-                    resolve(actionOrActions.value)
                 }
             }
         )
@@ -280,7 +286,7 @@ export class SimpleDatabase {
                     )
                     return Object.keys(result).length == 1 ? result[Object.keys(result)[0]] : result as object|any;
                 }
-            } else if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
+            } else if (this.alerts == true) return console.log("Couldn't find anything with such key.")
         } else return data[options.key];
     }
 
@@ -331,7 +337,7 @@ export class SimpleDatabase {
                                 'utf8'
                             )
                             data = JSON.parse(data);
-                            if ((action.key).includes('~')) reject("You can't use this pointer here. \nTry using full path: item.item2.lastItem etc.")
+                            if ((action.key).includes('~')) return reject("You can't use this pointer here. \nTry using full path: item.item2.lastItem etc.")
                             if ((action.key).includes('.')) {
                                 if (action.newline && action.newline == true) {
                                     _.set(data, action.key, action.value);
@@ -365,7 +371,7 @@ export class SimpleDatabase {
                                             )
                                             resolve(this.read(tableParameter, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
                                         }
-                                    } else if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
+                                    } else if (this.alerts == true) return console.log("Couldn't find anything with such key.")
                                 }
                             } else {
                                 data[action.key] = action.value;
@@ -391,7 +397,7 @@ export class SimpleDatabase {
                         'utf8'
                     )
                     data = JSON.parse(data);
-                    if ((actionOrActions.key).includes('~')) reject("You can't use this pointer here. \nTry using full path: item.item2.lastItem etc.")
+                    if ((actionOrActions.key).includes('~')) return reject("You can't use this pointer here. \nTry using full path: item.item2.lastItem etc.")
                     if ((actionOrActions.key).includes('.')) {
                         if (actionOrActions.newline && actionOrActions.newline == true) {
                             _.set(data, actionOrActions.key, actionOrActions.value);
@@ -425,7 +431,7 @@ export class SimpleDatabase {
                                     )
                                     resolve(this.read(tableParameter, { key: (actionOrActions.key).length > 1 ? actionOrActions.key.split('.')[0] : actionOrActions.key }))
                                 }
-                            } else if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
+                            } else if (this.alerts == true) return console.log("Couldn't find anything with such key.")
                         }
                     } else {
                         data[actionOrActions.key] = actionOrActions.value;
@@ -457,36 +463,38 @@ export class SimpleDatabase {
      * @param options.key unique key of a line in database.
      * Warning: you can't use pointers.
      */
-    public remove (
+    public async remove (
         table: string,
         options: {
-            key: string, 
-            value: any
+            key: string
         },
-    ): void
+    ): Promise<void>
     {
-        var data: any = fs.readFileSync(
-            this.tablePath + '/' + table + '.json',
-            'utf8'
-        )
-        data = JSON.parse(data);
-        if (data[options.key] == undefined) {
-            if (this.alerts == true) console.log("Returned 0: couldn't find anything with such key.")
-        }
-        else {
-            data[options.key] = undefined;
-            if (this.useTabulation != undefined) {
-                fs.writeFileSync(
+        return new Promise(
+            (resolve, reject) => {
+                var data: any = fs.readFileSync(
                     this.tablePath + '/' + table + '.json',
-                    JSON.stringify(data, null, this.useTabulation.whitespace)
+                    'utf8'
                 )
-            } else {
-                fs.writeFileSync(
-                    this.tablePath + '/' + table + '.json',
-                    JSON.stringify(data)
-                )
+                data = JSON.parse(data);
+                if (data[options.key] == undefined && this.alerts == true) return console.log("Couldn't find anything with such key.")
+                else {
+                    data[options.key] = undefined;
+                    if (this.useTabulation != undefined) {
+                        fs.writeFileSync(
+                            this.tablePath + '/' + table + '.json',
+                            JSON.stringify(data, null, this.useTabulation.whitespace)
+                        )
+                    } else {
+                        fs.writeFileSync(
+                            this.tablePath + '/' + table + '.json',
+                            JSON.stringify(data)
+                        )
+                    }
+                }
+                resolve();
             }
-        }
+        )
     }
 
     /**
