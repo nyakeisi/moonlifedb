@@ -5,10 +5,8 @@ Huge thanks to Phntasm for helping <br />
 
 ## What's new?
 
-Version: **1.0.0 ALPHA 6** <br />
-+ Added SnowFlake class to work with snowflake ID generator. <br />
-+ Added adapters support, but currently only LocalStorage is supported. <br />
-+ Fixed a lot of stuff with main methods of the Database class. <br /><br />
+Version: **1.0.0 ALPHA 8** <br />
++ Some minor fixes <br />
 
 See the main documentation down below. <br />
 
