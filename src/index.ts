@@ -1,5 +1,5 @@
 // json database app
-export * from './lib/database/database';
+export * from './lib/database/simpledatabase';
 export * from './lib/database/creator';
 export * from './lib/database/constructor';
 export * from './lib/database/adapter';

@@ -19,9 +19,7 @@ export class JSONFormatter {
             options.whitespace != undefined
                 ? this.whitespace = options.whitespace == 'tab' ? '\t' : options.whitespace
                 : this.whitespace = '\t'
-        } else {
-            this.whitespace = '\t'
-        }
+        } else this.whitespace = '\t';
     }
 }
 

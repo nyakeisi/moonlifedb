@@ -5,10 +5,8 @@ Huge thanks to Phntasm for helping <br />
 
 ## What's new?
 
-Version: **1.0.0 ALPHA 6** <br />
-+ Added SnowFlake class to work with snowflake ID generator. <br />
-+ Added adapters support, but currently only LocalStorage is supported. <br />
-+ Fixed a lot of stuff with main methods of the Database class. <br /><br />
+Version: **1.0.0 ALPHA 8** <br />
++ Some minor fixes <br />
 
 See the main documentation down below. <br />
 
@@ -19,20 +17,20 @@ If you need help, you can contact me: Squeens#6280 <br /> <br />
 
 How to import: <br />
 
-### Database
+### SimpleDatabase
 
 ```js
 // old javascript
-const { Database, LocalStorage } = require("moonlifedb");
+const { SimpleDatabase, LocalStorage } = require("moonlifedb");
 const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
-const db = new Database(adapter);
+const db = new SimpleDatabase(adapter);
 ```
 
 ```ts
 // new javascript and typescript
-import { Database, LocalStorage } from "moonlifedb";
+import { SimpleDatabase, LocalStorage } from "moonlifedb";
 const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
-const db = new Database(adapter);
+const db = new SimpleDatabase(adapter);
 ```
 
 ### SnowFlake

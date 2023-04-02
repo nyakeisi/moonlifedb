@@ -39,7 +39,7 @@ function deepFind(obj: object, path: string): any {
     return current;
 }
 
-export class Database {
+export class SimpleDatabase {
 
     public adapter: LocalStorage | ExternalConnection;
 

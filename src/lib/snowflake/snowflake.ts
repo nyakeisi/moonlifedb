@@ -36,7 +36,7 @@ export class Snowflake {
 
 	/**
 	 * Generate a 63 bits long unique ID.
-	 * @example const ID = FlakeID.generate();
+	 * @example const ID = Snowflake.generate();
 	 * @returns {snowflake} snowflake
 	 */
 
@@ -57,8 +57,8 @@ export class Snowflake {
 		let s = this.seq.toString(2),
 			w = this.worker.toString(2);
 		while (t.length < 41) t = "0" + t;
-		while (w.length < 12) w = "0" + w;
-		while (s.length < 10) s = "0" + s; 
+		while (w.length < 10) w = "0" + w;
+		while (s.length < 12) s = "0" + s; 
 
 		const sid = t + w + s;
 		let id = "";
@@ -70,7 +70,7 @@ export class Snowflake {
 
 	/**
 	 * Generate a 63 bits long unique ID.
-	 * @example const ID = FlakeID.generate({ decode: true });
+	 * @example const ID = Snowflake.generateRaw();
 	 * 
 	 * @param settings
 	 * @param decode returns object with raw binary data.
@@ -95,8 +95,8 @@ export class Snowflake {
 			w = this.worker.toString(2);
 
 		while (t.length < 41) t = "0" + t;
-		while (w.length < 12) w = "0" + w;
-		while (s.length < 10) s = "0" + s; 
+		while (w.length < 10) w = "0" + w;
+		while (s.length < 12) s = "0" + s; 
 
 		const sid = t + w + s;
 		let id = "";

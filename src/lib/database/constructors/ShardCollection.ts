@@ -29,8 +29,7 @@ export class ShardCollection {
         options.indexing
          ? this.indexing = options.indexing
          : this.indexing = false
-        this.shardCount = options.shardCount;
-        
+        this.shardCount = options.shardCount;   
     }
 }
 
