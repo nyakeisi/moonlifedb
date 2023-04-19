@@ -13,7 +13,7 @@ See the main documentation down below. <br />
 ## Documentation
 
 Full documentation will be released later. <br />
-If you need help, you can contact me: Squeens#6280 <br /> <br />
+If you need help, you can contact me: Sleeping Foxxo#0001 <br /> <br />
 
 How to import: <br />
 
