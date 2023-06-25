@@ -5,32 +5,37 @@ Huge thanks to Phntasm for helping <br />
 
 ## What's new?
 
-Version: **1.0.0 ALPHA 8** <br />
-+ Some minor fixes <br />
+Version: **1.0.0 ALPHA 9** <br />
++ SimpleDatabase is now marked as Deprecated.<br />
++ Moved to class Database. Completely redone methods and now they are faster and easier to use.<br />
++ Database#write() is now deprecated. Use Database#create() instead.<br />
++ Added Snowflake#decode(). Now you can decode your snowflake.<br />
++ Fixed tooltips: grammar and minor variable mistakes.<br />
++ Currently working on new documentation. You will be able to see it in future updates.<br /><br />
 
 See the main documentation down below. <br />
 
 ## Documentation
 
 Full documentation will be released later. <br />
-If you need help, you can contact me: Sleeping Foxxo#0001 <br /> <br />
+If you need help, you can contact me: Squeens#6280 <br /> <br />
 
 How to import: <br />
 
-### SimpleDatabase
+### Database
 
 ```js
 // old javascript
-const { SimpleDatabase, LocalStorage } = require("moonlifedb");
+const { Database, LocalStorage } = require("moonlifedb");
 const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
-const db = new SimpleDatabase(adapter);
+const db = new Database(adapter);
 ```
 
 ```ts
 // new javascript and typescript
-import { SimpleDatabase, LocalStorage } from "moonlifedb";
+import { Database, LocalStorage } from "moonlifedb";
 const adapter = new LocalStorage({ path: "YOURDIRECTORYHERE" });
-const db = new SimpleDatabase(adapter);
+const db = new Database(adapter);
 ```
 
 ### SnowFlake
@@ -83,4 +88,18 @@ const table = new Token();
 // new javascript and typescript
 import { Token } from "moonlifedb";
 const table = new Token();
+```
+
+### Formatter
+
+```js
+// old javascript
+const { JSONFormatter } = require("moonlifedb");
+const formatter = new JSONFormatter({ whitespace: '\t' });
+```
+
+```ts
+// new javascript and typescript
+import { JSONFormatter } from "moonlifedb";
+const formatter = new JSONFormatter({ whitespace: '\t' });
 ```
