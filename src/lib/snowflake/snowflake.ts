@@ -2,9 +2,9 @@
 
 export class Snowflake {
 
-	protected worker: number;
-	protected epoch: number;
-	protected seq: number;
+	public worker:      number | bigint;
+	public epoch:       number | bigint;
+	public seq:         number | bigint;
 	protected lastTime: number | bigint;
 
 	/**
@@ -16,8 +16,8 @@ export class Snowflake {
 
 	constructor (
 		settings: {
-			worker: number | undefined, 
-			epoch: number | undefined
+			worker: number | bigint | undefined, 
+			epoch:  number | bigint | undefined
 		}
     ) {
 		this.worker = settings.worker != undefined ? settings.worker : 0; // starts from 0
@@ -43,8 +43,8 @@ export class Snowflake {
 	public generate (
 	): string
 	{
-		var time = Number(Date.now()),
-			   t = (time - this.epoch).toString(2);
+		var time = BigInt(Date.now()),
+			   t = (time - BigInt(this.epoch)).toString(2);
 		if (this.lastTime == time) {
 			this.seq++;
 			if (this.seq > 4095) {
@@ -71,17 +71,23 @@ export class Snowflake {
 	/**
 	 * Generate a 63 bits long unique ID.
 	 * @example const ID = Snowflake.generateRaw();
-	 * 
-	 * @param settings
-	 * @param decode returns object with raw binary data.
 	 * @returns {object} snowflake
 	 */
 
 	public generateRaw (
-	): object
+	): {
+		result: string,
+		raw: {
+			result: string,
+			epoch: number | bigint,
+			epochBinary: string,
+			worker: number | bigint,
+			workerBinary: string
+		}
+	}
 	{
-		var time = Number(Date.now()),
-			   t = (time - this.epoch).toString(2);
+		var time = BigInt(Date.now()),
+		       t = (time - BigInt(this.epoch)).toString(2);
 		if (this.lastTime == time) {
 			this.seq++;
 			if (this.seq > 4095) {
@@ -117,7 +123,46 @@ export class Snowflake {
 				worker: parseInt(w, 2),
 				workerBinary: w
 			}
-		return object as object;
+		return object as {
+			result: string,
+			raw: {
+				result: string,
+				epoch: number | bigint,
+				epochBinary: string,
+				worker: number | bigint,
+				workerBinary: string
+			}
+		};
+	}
+
+	/**
+	 * Decode a 63 bits long unique ID into an object.
+	 * @example const ID = Snowflake.decode(snowflake);
+	 * 
+	 * @param snowflake string
+	 * @returns {object} snowflake
+	 */
+
+	public decode (
+		snowflake: string
+	): { 
+		epoch: number | bigint,
+		worker: number | bigint, 
+		sequence: number | bigint 
+	} 
+	{
+		const sf = BigInt(snowflake).toString(2).padStart(63, '0');
+		const be = sf.substring(0, 41);
+		const bw = sf.substring(41, 51);
+		const bs = sf.substring(51, 63);
+		const epoch = BigInt(parseInt(be, 2));
+		const worker = parseInt(bw, 2);
+		const sequence = parseInt(bs, 2);
+		return { epoch, worker, sequence } as { 
+			epoch:    number | bigint,
+			worker:   number | bigint, 
+			sequence: number | bigint 
+		};
 	}
 }
 
