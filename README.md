@@ -3,9 +3,15 @@
 A better version of `ls-jsondb` by me <br />
 Huge thanks to Phntasm for helping <br />
 
+## Requirements
+
++ TypeScript: i use 5.1.3, but you can use older versions (tested with 4.7+) <br />
++ lodash: i use 4.17.21 <br />
++ fs <br />
+
 ## What's new?
 
-Version: **1.0.0 ALPHA 9** <br />
+Version: **1.0.0 ALPHA 9A** <br />
 + SimpleDatabase is now marked as Deprecated.<br />
 + Moved to class Database. Completely redone methods and now they are faster and easier to use.<br />
 + Database#write() is now deprecated. Use Database#create() instead.<br />
@@ -18,7 +24,7 @@ See the main documentation down below. <br />
 ## Documentation
 
 Full documentation will be released later. <br />
-If you need help, you can contact me: Squeens#6280 <br /> <br />
+If you need help, you can contact me: @uwu.fox on Discord and @squlissa on Twitter <br /><br />
 
 How to import: <br />
 

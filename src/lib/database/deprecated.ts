@@ -39,7 +39,7 @@ function deepFind(obj: object, path: string): any {
     return current;
 }
 
-export class SimpleDatabase {
+export class DeprecatedDatabase {
 
     public adapter: LocalStorage | ExternalConnection;
 
@@ -54,6 +54,7 @@ export class SimpleDatabase {
 
     /**
      * The main class of an insta-write database app.
+     * @deprecated this class is marked ad deprecated. Use Database instead. If new class has errors you still can use this.
      * @example const database = new Database(adapter, { alerts: true, overwrite: false, useTabulation: tabulationResolvable });
      * 
      * @param adapter

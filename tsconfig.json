@@ -1,11 +1,18 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
+        "target": "es2022",
         "module": "CommonJS",
         "declaration": true,
         "strict": true,
         "resolveJsonModule": true,
-        "noImplicitAny": true,
         "suppressImplicitAnyIndexErrors": true,
-    }
+        "ignoreDeprecations": "5.0",
+        "noImplicitAny": true,
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "preserveConstEnums": true,
+        "moduleResolution": "node",
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }

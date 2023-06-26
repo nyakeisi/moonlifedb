@@ -267,6 +267,7 @@ export class Database {
             resolve?: boolean | undefined
         }
     ): Promise<any|void> {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~') || (action.key).includes('.')) {
             const pointerError = "Pointers are not allowed in this method.";
             throw new Error(pointerError);
@@ -297,6 +298,7 @@ export class Database {
             resolve?: boolean | undefined
         }
     ): Promise<any|void> {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~') || (action.key).includes('.')) {
             const pointerError = "Pointers are not allowed in this method.";
             throw new Error(pointerError);
@@ -332,6 +334,7 @@ export class Database {
         }
     ): Promise<any|void> 
     {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~')) {
             const pointerError = "Pointer \"~\" is not allowed in this method.";
             throw new Error(pointerError);
@@ -362,6 +365,7 @@ export class Database {
             key: string,
         }
     ): Promise<void> {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~')) {
             const pointerError = "Pointer \"~\" is not allowed in this method.";
             throw new Error(pointerError);
@@ -390,6 +394,7 @@ export class Database {
         }
     ): any | object | undefined
     {
+        lib.checkFile(this.tablePath, table)
         let _r = this.get(table, {key: action.key});
         return _r as any;
     }
@@ -412,6 +417,7 @@ export class Database {
         }
     ): boolean
     {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~')) {
             const pointerError = "Pointer \"~\" is not allowed in this method.";
             throw new Error(pointerError);
@@ -425,7 +431,7 @@ export class Database {
      * Same as Database#check(), but resolvable.
      * @note It means that it returns a promise. If key is not undefined, it resolves it and can be accessed with await or .then() construction.
      * @warning "~" pointer is not allowed here. If using "." pointer it returns an object 
-     * @example const result = await Database.checkResolvable('table', { key: "example" })
+     * @example const result = await Database.checkres('table', { key: "example" })
      * @note And it should return value of this key, if exists. Otherwise it returns undefined.
      * @returns {Promise<any|undefined>}
      * @async
@@ -438,6 +444,7 @@ export class Database {
         }
     ): Promise<any|undefined>
     {
+        lib.checkFile(this.tablePath, table)
         if ((action.key).includes('~')) {
             const pointerError = "Pointer \"~\" is not allowed in this method.";
             throw new Error(pointerError);

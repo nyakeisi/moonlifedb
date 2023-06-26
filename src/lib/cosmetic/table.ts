@@ -9,7 +9,7 @@ export class CosmeticConstructor {
     /**
      * A table generator tool.
      * Creates a summary table based on Object of Arrays.
-     * @example const table = new Table.summaryTable({ firstColumn: ['User1', 'User2'], secondColumn: ['Lissa Squeens'] }, 'longest');
+     * @example const table = new Table.summaryTableY({ firstColumn: ['User1', 'User2'], secondColumn: ['Lissa Squeens'] }, 'longest');
      * 
      * @param {Object} table object of your table, where every element should be string[] | number[] | boolean[]
      * @param {Number|'longest'} length how wide each column has to be
