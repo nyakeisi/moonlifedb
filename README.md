@@ -24,7 +24,8 @@ See the main documentation down below. <br />
 ## Documentation
 
 Full documentation will be released later. <br />
-If you need help, you can contact me: @uwu.fox on Discord and @squlissa on Twitter <br /><br />
+If you need help or you want to help with development,<br />
+you can contact me: @uwu.fox on Discord or @squlissa on Twitter<br /> <br />
 
 How to import: <br />
 
