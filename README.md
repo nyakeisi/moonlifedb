@@ -3,6 +3,8 @@
 A better version of `ls-jsondb` by me <br />
 Huge thanks to Phntasm for helping <br />
 
+```npm i moonlifedb```
+
 ## Requirements
 
 + TypeScript: i use 5.1.3, but you can use older versions (tested with 4.7+) <br />
