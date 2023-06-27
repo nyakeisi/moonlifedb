@@ -13,7 +13,8 @@ Huge thanks to Phntasm for helping <br />
 
 ## What's new?
 
-Version: **1.0.0 ALPHA 9A** <br />
+Version: **1.0.0 ALPHA 9B** <br />
++ Fixed Database#check() method. Now it returns boolean value as it should.<br />
 + SimpleDatabase is now marked as Deprecated.<br />
 + Moved to class Database. Completely redone methods and now they are faster and easier to use.<br />
 + Database#write() is now deprecated. Use Database#create() instead.<br />
