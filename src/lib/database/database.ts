@@ -423,8 +423,8 @@ export class Database {
             throw new Error(pointerError);
         }
         let _r = this.get(table, {key: action.key});
-        if (_r instanceof Object) { return (Object.keys(_r).length > 0 ? _r : undefined) as boolean }
-        else { return (_r !== undefined ? _r : undefined) as boolean }
+        if (_r instanceof Object) { return (Object.keys(_r).length > 0 ? true : false) }
+        else { return (_r !== undefined ? true : false) }
     }
 
     /**
