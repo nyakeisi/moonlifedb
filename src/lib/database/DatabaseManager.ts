@@ -5,11 +5,11 @@ import * as _ from 'lodash';
 import { Memory } from './CoreCheck';
 import { LocalStorage, ExternalConnection } from './AdapterExporter';
 import { JSONFormatter, ShardCollection } from './ConstructorExporter';
-import { EventManager } from './EventManager';
 import { Event } from './constructors/EventConstructor';
+import { EventEmitter } from "node:events";
 
-const lib = new Memory(),
-    event = new EventManager()
+const lib = new Memory();
+    // event = new EventManager()
 
 var getDeepKeys = (obj: object): any[] => {
     var keys: any[] = [];
@@ -43,7 +43,7 @@ function deepFind(obj: object, path: string): any {
     return current;
 }
 
-export class Database {
+export class Database extends EventEmitter {
 
     public adapter: LocalStorage | ExternalConnection;
 
@@ -74,6 +74,7 @@ export class Database {
             type?: ShardCollection | 'SingleFile' | undefined,
         } | undefined
     ) {
+        super()
         this.adapter = adapter;
 
         switch (true) {
@@ -278,7 +279,8 @@ export class Database {
         return new Promise(
             async (resolve, reject) => {
                 await this.put(table, {key: action.key, value: action.value, newline: true});
-                event.success(
+                this.emit(
+                    "access",
                     new Event(
                         'create', 
                         'put', 
@@ -323,7 +325,8 @@ export class Database {
         return new Promise(
             async (resolve, reject) => {
                 await this.put(table, {key: action.key, value: action.value, newline: true});
-                event.success(
+                this.emit(
+                    "access",
                     new Event(
                         'create', 
                         'put', 
@@ -371,8 +374,8 @@ export class Database {
         }
         return new Promise(
             async (resolve, reject) => {
-                await this.put(table, {key: action.key, value: action.value, newline: action.newline });
-                event.success(
+                this.emit(
+                    "access",
                     new Event(
                         'edit', 
                         'put', 
@@ -385,6 +388,7 @@ export class Database {
                         }
                     )
                 )
+                await this.put(table, {key: action.key, value: action.value, newline: action.newline });
                 if (action.resolve == true) resolve(this.get(table, {key: (action.key).split('.')[0]}));
             }
         )
@@ -416,7 +420,8 @@ export class Database {
         return new Promise(
             async (resolve, reject) => {
                 await this.put(table, {key: action.key, value: undefined});
-                event.success(
+                this.emit(
+                    "access",
                     new Event(
                         'remove', 
                         'put', 
@@ -452,7 +457,8 @@ export class Database {
     {
         lib.checkFile(this.tablePath, table)
         let _r = this.get(table, {key: action.key});
-        event.success(
+        this.emit(
+            "access",
             new Event(
                 'read', 
                 'get', 
@@ -493,7 +499,8 @@ export class Database {
         }
         let _r = this.get(table, {key: action.key});
         if (_r instanceof Object) { 
-            event.success(
+            this.emit(
+                "access",
                 new Event(
                     'check', 
                     'get', 
@@ -509,7 +516,8 @@ export class Database {
             return (Object.keys(_r).length > 0 ? true : false) 
         }
         else { 
-            event.success(
+            this.emit(
+                "access",
                 new Event(
                     'check', 
                     'get', 
@@ -552,7 +560,8 @@ export class Database {
             async (resolve, reject) => {
                 let _r = this.get(table, {key: action.key});
                 if (_r instanceof Object) { 
-                    event.success(
+                    this.emit(
+                        "access",
                         new Event(
                             'check', 
                             'get', 
@@ -568,7 +577,8 @@ export class Database {
                     resolve(Object.keys(_r).length > 0 ? _r : undefined) 
                 }
                 else { 
-                    event.success(
+                    this.emit(
+                        "access",
                         new Event(
                             'check', 
                             'get', 

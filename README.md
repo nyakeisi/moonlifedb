@@ -26,7 +26,7 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [Dot pointer](#dot-pointer)
     - [Tilde pointer](#tilde-pointer)
   - [Can I listen to these events?](#can-i-listen-to-these-events)
-    - [EventManager](#eventmanager)
+    - [Database EventEmitter](#database-eventemitter)
     - [Event constructor](#event-constructor)
 - [Documentation](#documentation)
   - [Database](#database)
@@ -43,9 +43,6 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [JSONFormatter Constructor](#jsonformatter-constructor)
   - [Event](#event)
     - [Event Constructor](#event-constructor-1)
-  - [EventManager](#eventmanager-1)
-    - [EventManager Constructor](#eventmanager-constructor)
-    - [EventManager#on()](#eventmanageron)
   - [Snowflake](#snowflake)
     - [Snowflake Constructor](#snowflake-constructor)
     - [Snowflake#generate()](#snowflakegenerate)
@@ -234,14 +231,14 @@ As you can see, every occurence ends with our subKey.<br />
 ***Note #5**: You **can't use comments** in JSON files! It only for **demonstration**!*<br /><br />
 
 ## Can I listen to these events?
-### EventManager
+### Database EventEmitter
 Yes! Of course you can!<br />
-You can use `EventManager` class to listen for access events.<br />
+You can use `Database` class to listen for access events.<br />
 ```js
-const { EventManager } = require('moonlifedb');
-const dbevents = new EventManager();
+const adapter = new LocalStorage({ path: 'path' })
+const db = new Database(adapter)
 
-dbevents.on('access',
+db.on('access',
     async (event) => {
         console.log(event);
     }
@@ -508,44 +505,6 @@ Event {
         newline: boolean
     }: object
 }
-```
-
----
-
-## EventManager
-
-Used to handle database access events and log them.
-
-### EventManager Constructor
-
-`EventManager` extends `EventEmitter`, no constructor needed.
-
----
-
-### EventManager#on()
-
-| PARAMETER | TYPE | DESCRIPTION |
-|:---:|:---:|:---:|
-| eventName | string \| symbol | EventName: moonlifedb uses "access" and "error" |
-| listener | Event | function  |
-
-```ts
-table: string,
-action: {
-    key: string,
-}
-```
-
-Example usage:
-```ts
-import { EventManager } from 'moonlifesdb'
-const moonlifedb = new EventManager()
-
-moonlifedb.on('access', 
-    async (event: Event) => {
-        console.log(event)
-    }
-)
 ```
 
 ---

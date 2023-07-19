@@ -5,4 +5,3 @@ export * from './lib/database/AdapterExporter';
 export * from './lib/cosmetic/CosmeticManager';
 export * from './lib/cosmetic/TokenManager';
 export * from './lib/snowflake/SnowflakeManager';
-export * from './lib/database/EventManager';
