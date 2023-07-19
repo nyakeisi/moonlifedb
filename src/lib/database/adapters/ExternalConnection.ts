@@ -1,6 +1,6 @@
 'use strict'
 
-import { Memory } from '../memory';
+import { Memory } from '../CoreCheck';
 const lib = new Memory();
 
 export class ExternalConnection {

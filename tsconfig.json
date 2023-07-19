@@ -13,6 +13,6 @@
         "preserveConstEnums": true,
         "moduleResolution": "node",
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "deprecated/deprecated.ts"],
     "exclude": ["node_modules"]
 }

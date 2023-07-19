@@ -1,7 +1,7 @@
 'use strict'
 
 import * as fs from 'fs';
-import { Memory } from './memory';
+import { Memory } from './CoreCheck';
 import { LocalStorage } from './adapters/LocalStorage';
 import { ExternalConnection } from './adapters/ExternalConnection';
 const lib = new Memory();

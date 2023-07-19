@@ -1,11 +1,8 @@
-// json database app
-export * from './lib/database/database';
-export * from './lib/database/deprecated';
-export * from './lib/database/creator';
-export * from './lib/database/constructor';
-export * from './lib/database/adapter';
-// cosmetic library
-export * from './lib/cosmetic/table';
-export * from './lib/cosmetic/token';
-// snowflake
-export * from './lib/snowflake/snowflake';
+export * from './lib/database/DatabaseManager';
+export * from './lib/database/TableCreator';
+export * from './lib/database/ConstructorExporter';
+export * from './lib/database/AdapterExporter';
+export * from './lib/cosmetic/CosmeticManager';
+export * from './lib/cosmetic/TokenManager';
+export * from './lib/snowflake/SnowflakeManager';
+export * from './lib/database/EventManager';
