@@ -1,5 +1,5 @@
 # MoonlifeDB: A simple JSON database
->Version: **1.0.0 ALPHA 10-PRE1** <br />
+>Version: **1.0.0 ALPHA 10-PRE3** <br />
 
 If you need help or you want to help with development,<br />
 you can contact the main developer: **uwu.fox** on Discord or **squlissa** on Twitter<br />
