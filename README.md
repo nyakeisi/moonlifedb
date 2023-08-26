@@ -1,5 +1,5 @@
 # MoonlifeDB: A simple JSON database
->Version: **1.0.0 ALPHA 10-PRE1** <br />
+>Version: **1.0.0 BETA 1** <br />
 
 If you need help or you want to help with development,<br />
 you can contact the main developer: **uwu.fox** on Discord or **squlissa** on Twitter<br />
@@ -27,7 +27,8 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [Tilde pointer](#tilde-pointer)
   - [Can I listen to these events?](#can-i-listen-to-these-events)
     - [Database EventEmitter](#database-eventemitter)
-    - [Event constructor](#event-constructor)
+    - [DatabaseEvent constructor](#databaseevent-constructor)
+  - [Can I log database actions?](#can-i-log-database-actions)
 - [Documentation](#documentation)
   - [Database](#database)
     - [Database Constructor](#database-constructor)
@@ -35,19 +36,23 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [Database#edit()](#databaseedit)
     - [Database#remove()](#databaseremove)
     - [Database#read()](#databaseread)
+    - [Database#keys()](#databasekeys)
     - [Database#check()](#databasecheck)
     - [Database#checkres()](#databasecheckres)
   - [LocalStorage](#localstorage)
     - [LocalStorage Constructor](#localstorage-constructor)
-  - [JSONFormatter](#jsonformatter)
-    - [JSONFormatter Constructor](#jsonformatter-constructor)
-  - [Event](#event)
-    - [Event Constructor](#event-constructor-1)
+  - [Formatter](#formatter)
+    - [Formatter Constructor](#formatter-constructor)
+  - [DatabaseEvent](#databaseevent)
+    - [DatabaseEvent Constructor](#databaseevent-constructor-1)
   - [Snowflake](#snowflake)
     - [Snowflake Constructor](#snowflake-constructor)
     - [Snowflake#generate()](#snowflakegenerate)
     - [Snowflake#generateRaw()](#snowflakegenerateraw)
     - [Snowflake#decode()](#snowflakedecode)
+  - [Logger](#logger)
+    - [Logger Constructor](#logger-constructor)
+    - [Logger#write()](#loggerwrite)
 
 
 # How to use the database?
@@ -116,7 +121,8 @@ db.create('accounts', {
 ### Read
 To access it, use `Database#read()` method:
 ```js
-const result = db.read('accounts', { key: 'Bob' });
+// because it's as
+const result = await db.read('accounts', { key: 'Bob' });
 // and it will return value we specified when created this line.
 ```
 ### Edit
@@ -184,12 +190,12 @@ That's exactly what pointers fix! There are 2 types of them: dot `(.)` and tilde
 ```
 And for example we need to get uidd of held item. To do this we can just access it with:
 ```js
-const result = db.read('items', { key: 'object' });
+const result = await db.read('items', { key: 'object' });
 const uidd = result.heldItem.uidd
 ```
 but it's too slow and tiring. Instead we can do:
 ```js
-const result = db.read('items', { key: 'object.heldItem.uidd' });
+const result = await db.read('items', { key: 'object.heldItem.uidd' });
 ```
 It does absolutely the same, but way faster!<br />
 What about other methods? Well, they work with the same principle. You can edit a single subkey, or you can check if subkey exists. Do what you want!<br /><br />
@@ -219,16 +225,18 @@ And if we do this request:
 const result = db.read('items', { key: 'object~mana' })
 ```
 it returns an object like this:
-```json
+```json5
 {
   "object.stats.mana": 100,
-                ^^^^       
+//              ^^^^       
   "object.heldItem.abilities.first.mana": 20
-                                   ^^^^ // Note #5
+//                                 ^^^^  Note #5
 }
 ```
 As you can see, every occurence ends with our subKey.<br />
 ***Note #5**: You **can't use comments** in JSON files! It only for **demonstration**!*<br /><br />
+
+**READ MORE [HERE](#database)**
 
 ## Can I listen to these events?
 ### Database EventEmitter
@@ -244,7 +252,7 @@ db.on('access',
     }
 )
 ```
-### Event constructor
+### DatabaseEvent constructor
 argument `event` returns `Event` class, which looks like this:
 ```ts
 Event {
@@ -252,6 +260,7 @@ Event {
   type:     'get'|'put',
   body: {
     table:   string,
+    folder:  string,
     key:     string,
     value:   any, // Note #7
     resolve: boolean,
@@ -261,6 +270,69 @@ Event {
 ```
 ***Note #6**: `Database#check()` and `Database#checkres()` have the same method name: **check**! The only difference is `Database#checkres() `has `Event.body.resolve` set to true!*<br /><br />
 ***Note #7**: `Event.body.value` is mostly used to return value of this key, but in some cases like `Database#check()` it returns **boolean** value because it method checks if value for this key exists and also because it's not async!*<br /><br />
+
+**READ MORE [HERE](#databaseevent)**
+
+## Can I log database actions?
+Yes! And it's very simple!<br />
+Because we can use this construction:<br />
+```js
+const adapter = new LocalStorage({ path: 'path' })
+const db = new Database(adapter)
+
+db.on('access',
+    async (event) => {
+        console.log(event);
+    }
+)
+```
+You need to create any plain text file, but to be cool and stuff, we can create .log file.<br />
+Returned value "event" already is DatabaseEvent class, so we can simply transform this construction into this:
+
+```js
+const adapter = new LocalStorage({ path: './database' })
+const db = new Database(adapter)
+const logger = new Logger({ path: './database/logger.log' })
+//                this is the file we created ^^^^^^^^^^
+//               can be any name and any plain text file extension:
+//              .txt, .log or .rtf for example.
+
+db.on('access',
+    async (event) => {
+        logger.write(event)
+    }
+)
+
+db.read('users', {key: 'RandomUserID'})
+```
+
+and it will write a new line, looking something like this:
+```log
+08/21/23 14:36:29 INFO GET REQUEST: Database#read() -> ./database/users.json
+```
+
+You can also add notes to this line by just adding second argument in Logger#write():
+```js
+const adapter = new LocalStorage({ path: './database' })
+const db = new Database(adapter)
+const logger = new Logger({ path: './database/logger.log' })
+
+db.on('access',
+    async (event) => {
+        logger.write(event, "some useful information about this database access")
+    }
+)
+
+db.read('users', {key: 'RandomUserID'})
+```
+and it will look like this:
+```log
+08/21/23 14:36:29 INFO GET REQUEST: Database#read() -> ./database/users.json :: some useful information about this database access
+```
+
+**READ MORE [HERE](#logger)**
+
+---
 
 # Documentation
 
@@ -284,7 +356,6 @@ Main database class to work with json files.
 | alerts 	| boolean \| undefined 	| (optional) Should alerts be enabled? 	|
 | ignoreDeprecations 	| boolean \| undefined 	| (optional) Should deprecation force alerts be ignorred? 	|
 | useTabulation 	| JSONFormatter \| undefined 	| (optional) A constructor how database should be formatted (adds spacing for json objects) 	|
-| type 	| ShardCollection \| 'SingleFile' \| undefined, 	| (optional, not supported) 	|
 
 ```ts
 adapter: LocalStorage | ExternalConnection,
@@ -293,7 +364,6 @@ settings: {
     ignoreDeprecations: boolean | undefined
     overwrite: boolean | undefined,
     useTabulation: JSONFormatter | undefined
-    type: ShardCollection | 'SingleFile' | undefined,
 } | undefined
 ```
 
@@ -301,12 +371,11 @@ settings: {
 Database {
     adapter: LocalStorage | ExternalConnection;
     tablePath: string;
-    ip: string | undefined;
-    port: string | undefined;
+    ip: string | undefined; // NOT SUPPORTED
+    port: string | undefined; // NOT SUPPORTED
     alerts: boolean;
     ignore: boolean;
-    useTabulation: JSONFormatter | undefined;
-    type: ShardCollection | 'SingleFile'
+    useTabulation: Formatter | undefined;
 }
 ```
 
@@ -383,12 +452,27 @@ Read and return a line from database.
 | table | string | Table name: JSON file name |
 | action | Object:<br>key: string | key - identifier in table to search for |
 
-Returns `any` and has `get` type.
+Returns `Promise<any>` and has `get` type.
 ```ts
 table: string,
 action: {
     key: string,
 }
+```
+
+---
+
+### Database#keys()
+
+Return an array of keys in database.
+
+| PARAMETER | TYPE | DESCRIPTION |
+|:---:|:---:|:---:|
+| table | string | Table name: JSON file name |
+
+Returns `Promise<string[]>` and has `get` type.
+```ts
+table: string,
 ```
 
 ---
@@ -402,7 +486,7 @@ Check if this line in database exists.
 | table | string | Table name: JSON file name |
 | action | Object:<br>key: string | key - identifier in table to search for |
 
-Returns `boolean` and has `get` type.
+Returns `Promise<boolean>` and has `get` type.
 ```ts
 table: string,
 action: {
@@ -457,11 +541,11 @@ LocalStorage {
 
 ---
 
-## JSONFormatter
+## Formatter
 
 A formatter of JSON file: add tabulation.
 
-### JSONFormatter Constructor
+### Formatter Constructor
 
 | PARAMETER | TYPE | DESCRIPTION |
 |:---:|:---:|:---:|
@@ -474,31 +558,32 @@ options: {
 ```
 
 ```ts
-JSONFormatter {
+Formatter {
     whitespace: number | '\t'
 }
 ```
 
 ---
 
-## Event
+## DatabaseEvent
 
 Event constructor to contain information about single database access.
 
-### Event Constructor
+### DatabaseEvent Constructor
 
 | PARAMETER | TYPE | DESCRIPTION |
 |---|---|---|
 | method | string | Method name. |
 | type | string: 'get' \| 'put' | Type of database access. |
-| body | object | Any object returned. |
+| body | object | Object returned. |
 
 ```ts
-Event {
+DatabaseEvent {
     method: string,
     type: 'get'|'put',
     body: {
         table: string,
+        folder: string,
         key: string,
         value: any,
         resolve: boolean,
@@ -578,6 +663,35 @@ Returns `object`.
     sequence: number | bigint 
 }
 ```
+
+---
+
+## Logger
+
+### Logger Constructor
+
+| PARAMETER | TYPE | DESCRIPTION |
+|:---:|:---:|:---:|
+| adapter | LocalStorage \| ExternalConnection | Adapter to search for the .log file. |
+
+```ts
+Logger {
+    adapter: LocalStorage | ExternalConnection;
+}
+```
+
+---
+
+### Logger#write()
+
+Writes a new line in .log file.
+
+| PARAMETER | TYPE | DESCRIPTION |
+|:---:|:---:|:---:|
+| obj | DatabaseEvent | object of returned database event. |
+| additional | string \| undefined | some user-typed information. |
+
+Returns `void`.
 
 ---
 

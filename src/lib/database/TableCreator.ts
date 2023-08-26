@@ -1,11 +1,11 @@
 'use strict'
 
 import * as fs from 'fs';
-import { Memory } from './CoreCheck';
-import { LocalStorage } from './adapters/LocalStorage';
-import { ExternalConnection } from './adapters/ExternalConnection';
-import { JSONFormatter } from './ConstructorExporter';
-const lib = new Memory();
+import { Check } from '../../Check';
+import { LocalStorage } from '../adapters/LocalStorage';
+import { ExternalConnection } from '../adapters/ExternalConnection';
+import { Formatter } from '../../Constructors';
+const lib = new Check();
 
 interface TableParameters {
     [index: string]: ('auto-increment' | 'snowflake' | 'empty' | 'boolean' | 'string' | 'number' | 'decimal' | 'decimal' | 'hex' | 'binary' | 'octal' | 'bigint' | 'unknown' | 'object' | 'array' | 'infinity' | 'any')
@@ -14,7 +14,7 @@ interface TableParameters {
 export class TableCreator {
 
     public adapter: LocalStorage | ExternalConnection
-    public useTabulation: JSONFormatter | undefined;
+    public useTabulation: Formatter | undefined;
 
     public tablePath: string;
     public ip: string | undefined;
@@ -30,14 +30,14 @@ export class TableCreator {
     constructor(
         adapter: LocalStorage | ExternalConnection,
         options?: {
-            useTabulation?: JSONFormatter | undefined
+            useTabulation?: Formatter | undefined
         }
     ) {
         this.adapter = adapter;
         this.tablePath = this.adapter.tablePath
         
         if (this.adapter instanceof ExternalConnection) {
-            this.ip = this.adapter.localip
+            this.ip = this.adapter.ip
             this.port = this.adapter.port
         }
 
@@ -60,7 +60,7 @@ export class TableCreator {
     {
         lib.checkDir(this.tablePath);
         let result = {};
-        if (fs.existsSync(this.tablePath + '/' + name + '.json')) console.log('Alert: already exists in the database: overwritten')
+        if (fs.existsSync(this.tablePath + '/' + name + '.json')) console.log('already exists in the database: overwritten')
         fs.writeFileSync(this.tablePath + '/' + name + '.json', JSON.stringify(result));
         if (settings && settings.strict) fs.writeFileSync(this.tablePath + '/' + name + '-structure.json', JSON.stringify(settings.strict, null, this.useTabulation == undefined ? '\t' : this.useTabulation.whitespace));
     }
