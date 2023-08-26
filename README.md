@@ -17,12 +17,12 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [Installing and importing](#installing-and-importing)
     - [Create your first table!](#create-your-first-table)
   - [How to work with Database?](#how-to-work-with-database)
-    - [Write](#write)
+    - [Create](#create)
     - [Read](#read)
     - [Edit](#edit)
     - [Check](#check)
   - [How about asynchronous?](#how-about-asynchronous)
-  - [What if I want to get returned value instead of promise?](#what-if-i-want-to-get-returned-value-instead-of-promise)
+  - [What if I don't want promises?](#what-if-i-dont-want-promises)
   - [What are pointers?](#what-are-pointers)
     - [Dot pointer](#dot-pointer)
     - [Tilde pointer](#tilde-pointer)
@@ -58,8 +58,7 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
 
 # How to use the database?
 
-**WARNING:** The database is currently in **alpha** state. It means there are still a lot of functions missing. When we release it in **beta**, it will be mostly safe to use.<br />
-**WARNING 2:** Main Database class is mostly done, but in Alpha 9 we redone it completely and we are still testing it, so use at your own risk!<br />
+**WARNING:** The database is currently in **beta** state. It means this build is mostly stable and safe to use!<br />
 
 ## How to start working with Database?
 ### Installing and importing
@@ -108,7 +107,7 @@ For example we need to store some info about Bob in "accounts" table:
     }
 }
 ```
-### Write
+### Create
 To write it, use `Database#create()` method:
 ```js
 db.create('accounts', { 
@@ -156,7 +155,7 @@ const result = await db.edit('accounts', { key: 'Jack.age', value: 18 } })
 ```
 
 `Database#check()` is async and returns `Promise<boolean>`. But we have a bit different method: `Database#checkres()`!<br />
-It is asynchronous and it returns promise with result this key leads to. They also have the same signature and event recognizes both as "check"! If this key exists it returns it's value. If not it returns undefined:
+It is asynchronous and it returns promise with result value this key leads to. They also have the same signature and event recognizes both as "check"! If this key exists it returns it's value. If not it returns undefined:
 
 ```js
 const result = await db.checkres('accounts', { key: 'Jack' });
@@ -164,10 +163,10 @@ const result = await db.checkres('accounts', { key: 'Jack' });
 // otherwise returns Promise<undefined>
 ```
 
-## What if I want to get returned value instead of promise?
-We don't really need this. Because `await` construction really saves your time and async functions make database faster and a little more stress resistant. 
+## What if I don't want promises?
+Cool, but we don't really need this. Because `await` construction really saves your time and async functions make database faster and a little more stress resistant.<br /> 
 
-Is it really that hard to write this?
+By the way, is it really that hard to write this?
 ```js
 async function main() {
     const result = await db.read('user', { key: '1234' })
@@ -298,7 +297,8 @@ db.on('access',
     }
 )
 ```
-You need to create any plain text file, but to be cool and stuff, we can create .log file.<br />
+You need to create any plain text file, but to be cool and stuff for demonstration purposes we will create .log file.<br />
+We recommend using .log if you want some cool and fancy color formatting inside your IDE ;)<br />
 Returned value "event" already is DatabaseEvent class, so we can simply transform this construction into this:
 
 ```js
@@ -374,7 +374,6 @@ adapter: LocalStorage | ExternalConnection,
 settings: {
     alerts: boolean | undefined,
     ignoreDeprecations: boolean | undefined
-    overwrite: boolean | undefined,
     useTabulation: JSONFormatter | undefined
 } | undefined
 ```
