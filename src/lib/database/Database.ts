@@ -22,13 +22,8 @@ export class Database extends EventEmitter {
     protected useTabulation: Formatter | undefined;
 
     /**
-     * The main class of an insta-write database app.
-     * @example const database = new Database(adapter, { alerts: true, overwrite: false, useTabulation: tabulationResolvable });
-     * 
-     * @param adapter
-     * @param settings
-     * @param alerts - Alert writes and removes to the console.
-     * @param useTabulation - Use tabulation when formatting json file 
+     * The main class of the database app.
+     * @example const database = new Database(adapter, { alerts: true, useTabulation: tabulationResolvable });
      */
     constructor(
         adapter: LocalStorage | ExternalConnection,

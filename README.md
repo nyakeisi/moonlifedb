@@ -22,6 +22,7 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
     - [Edit](#edit)
     - [Check](#check)
   - [How about asynchronous?](#how-about-asynchronous)
+  - [What if I want to get returned value instead of promise?](#what-if-i-want-to-get-returned-value-instead-of-promise)
   - [What are pointers?](#what-are-pointers)
     - [Dot pointer](#dot-pointer)
     - [Tilde pointer](#tilde-pointer)
@@ -121,32 +122,31 @@ db.create('accounts', {
 ### Read
 To access it, use `Database#read()` method:
 ```js
-// because it's as
 const result = await db.read('accounts', { key: 'Bob' });
 // and it will return value we specified when created this line.
 ```
 ### Edit
 If you want to edit some info about Bob, use `Database#edit()` method:
 ```js
-db.edit('accounts', { key: 'Bob.loves', value: "music" }); // Note #4
+await db.edit('accounts', { key: 'Bob.loves', value: "music" }); // Note #4
+// we use await here because all methods return promise. You are not forced to use it here, but it can be helpful!
 ```
 ***Note #4**: What you've seen is called **pointers**. If you want to know more about these, read the article **"What are pointers?"***<br /><br />
 
 ### Check
 If you need to check if this key exists, use `Database#check()` method:
 ```js
-db.check('accounts', { key: 'Bob' });
+await db.check('accounts', { key: 'Bob' });
 // Should return "true" (boolean) if this key actually exists.
 // Returns "false" (boolean) if value of this key is undefined (does not exist in the database)
 ```
 
 ## How about asynchronous?
 Yes, async functions are cool! You should definetly use them!<br />
-`Database#create()` and `Database#edit()` are already async functions and they return a promise. That means if you do this:
+All database methods are async and they return a promise. That means if you do this:
 ```js
-// this only works in async function's body
 const result = await db.create('accounts', { key: 'Jack', value: { "age": 17, "loves": "animals" } })
-// the "retult" variable will be the same, as value and you can work with it later.
+// the "result" variable will be the same, as value and you can work with it later.
 ```
 With `Database#edit()` is a little different:
 ```js
@@ -155,12 +155,24 @@ const result = await db.edit('accounts', { key: 'Jack.age', value: 18 } })
 // the "result" variable will not be the same as value. Instead, it returns whole value in database after it got edited. So it means it will be: { age: 18, loves: "animals" }
 ```
 
-`Database#check()` is not async because it returns boolean. But we have a bit different method: `Database#checkres()`!<br />
-It is asynchronous and it returns a promise. They also have the same signature and event recognizes both as "check"! If this key exists it returns it's value. If not it returns undefined:
+`Database#check()` is async and returns `Promise<boolean>`. But we have a bit different method: `Database#checkres()`!<br />
+It is asynchronous and it returns promise with result this key leads to. They also have the same signature and event recognizes both as "check"! If this key exists it returns it's value. If not it returns undefined:
 
 ```js
 const result = await db.checkres('accounts', { key: 'Jack' });
 // and it should return this: { age: 18, loves: "animals" }
+// otherwise returns Promise<undefined>
+```
+
+## What if I want to get returned value instead of promise?
+We don't really need this. Because `await` construction really saves your time and async functions make database faster and a little more stress resistant. 
+
+Is it really that hard to write this?
+```js
+async function main() {
+    const result = await db.read('user', { key: '1234' })
+}
+main()
 ```
 
 ## What are pointers?
