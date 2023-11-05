@@ -9,8 +9,7 @@ export class DeepKeyFinder {
             if(typeof obj[key] === "object") {
                 var subkeys = this.getDeepKeys(obj[key]);
                 keys = keys.concat(
-                    subkeys.map(
-                        function(subkey) {
+                    subkeys.map((subkey: any) => {
                             return key + "." + subkey;
                         }
                     )
@@ -22,8 +21,7 @@ export class DeepKeyFinder {
     
     public deepFind(obj: object, path: string): any {
         var paths = path.split('.'), 
-            current = obj, 
-            i;
+            current = obj;
         for (let i = 0; i < paths.length; i++) {
             if (current[paths[i]] == undefined) return undefined;
             else current = current[paths[i]];

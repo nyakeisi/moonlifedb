@@ -48,7 +48,10 @@ export class TableCreator {
         lib.checkDir(this.tablePath)
     }
 
+    // TODO we still have to finish strict mode bruh
+
     /**
+     * 
      * NOT SUPPORTED YET
      */
     public create (

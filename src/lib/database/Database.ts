@@ -49,6 +49,7 @@ export class Database extends EventEmitter {
         lib.checkDir(this.tablePath)
     }
 
+    // TODO Make new system to search faster
     // MAIN METHODS
     
     private async get (

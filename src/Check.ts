@@ -19,7 +19,7 @@ export class Check {
                 tablePath
             )
         ) {
-            const DirError = 'CHECK: DirError: Unable to find directory \\' + tablePath + '\\'
+            const DirError = 'CHECK: DirError: Unable to find directory ' + tablePath
             throw new Error(DirError)
         }
     }

@@ -54,6 +54,7 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
   - [Logger](#logger)
     - [Logger Constructor](#logger-constructor)
     - [Logger#write()](#loggerwrite)
+    - [Logger#create()](#loggercreate)
 
 
 # How to use the database?
@@ -297,17 +298,14 @@ db.on('access',
     }
 )
 ```
-You need to create any plain text file, but to be cool and stuff for demonstration purposes we will create .log file.<br />
-We recommend using .log if you want some cool and fancy color formatting inside your IDE ;)<br />
+You need to create .log file or create a folder where to store session based logs.<br />
 Returned value "event" already is DatabaseEvent class, so we can simply transform this construction into this:
 
 ```js
 const adapter = new LocalStorage({ path: './database' })
 const db = new Database(adapter)
-const logger = new Logger({ path: './database/logger.log' })
-//                this is the file we created ^^^^^^^^^^
-//               can be any name and any plain text file extension:
-//              .txt, .log or .rtf for example.
+const logger = new Logger({ adapter: new LocalStorage({ path: './database/logger.log' }) })
+//                                            this is the file we created ^^^^^^^^^^
 
 db.on('access',
     async (event) => {
@@ -327,7 +325,7 @@ You can also add notes to this line by just adding second argument in Logger#wri
 ```js
 const adapter = new LocalStorage({ path: './database' })
 const db = new Database(adapter)
-const logger = new Logger({ path: './database/logger.log' })
+const logger = new Logger({ adapter: new LocalStorage({ path: './database/logger.log' }) })
 
 db.on('access',
     async (event) => {
@@ -340,6 +338,17 @@ db.read('users', {key: 'RandomUserID'})
 and it will look like this:
 ```log
 08/21/23 14:36:29 INFO GET REQUEST: Database#read() -> ./database/users.json :: some useful information about this database access
+```
+
+If you want to store in in directory, create a directory with any name and use this:
+```js
+const logger = new Logger({ adapter: new LocalStorage({path:'./logs'}), folderMode: true })
+logger.create();
+```
+and it should create a new .log file with time and date in UTC:<br />
+EXAMPLE: 11-28-23_11-59-59.log
+```log
+11/28/23 11:59:59 WARN Created a new .log file -> "11-28-23_11-59-59.log"
 ```
 
 **READ MORE [HERE](#logger)**
@@ -684,6 +693,7 @@ Returns `object`.
 | PARAMETER | TYPE | DESCRIPTION |
 |:---:|:---:|:---:|
 | adapter | LocalStorage \| ExternalConnection | Adapter to search for the .log file. |
+| folderMode | boolean \| undefined | Use folder mode? |
 
 ```ts
 Logger {
@@ -699,10 +709,19 @@ Writes a new line in .log file.
 
 | PARAMETER | TYPE | DESCRIPTION |
 |:---:|:---:|:---:|
-| obj | DatabaseEvent | object of returned database event. |
+| obj | DatabaseEvent \| UserInput | object of returned database event. |
 | additional | string \| undefined | some user-typed information. |
 
 Returns `void`.
+
+---
+
+### Logger#create()
+
+Creates a new .log file in folder, no constructor needed.
+Resolves file name.
+
+Returns `Promise<string>`.
 
 ---
 

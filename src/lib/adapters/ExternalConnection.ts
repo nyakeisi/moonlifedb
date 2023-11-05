@@ -6,6 +6,8 @@ export class ExternalConnection {
     public ip: string;
     public port: string;
 
+    // TODO this thing still must be finished at some point lol
+
     /**
      * NOT SUPPORTED YET
      * 
