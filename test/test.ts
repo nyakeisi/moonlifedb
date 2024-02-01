@@ -1,8 +1,7 @@
-import { Database, LocalStorage, Formatter, Logger, Snowflake, DatabaseEvent } from "../src/Index";
+import { Database, LocalStorage, Logger, Snowflake, DatabaseEvent } from "../src/Index";
 
 const db = new Database(
       new LocalStorage({ path: `${process.cwd()}/test/database` }), 
-      { useTabulation: new Formatter({ whitespace: 'tab' }) }
    );
 
 // each new system start -> create time based logger file
@@ -30,7 +29,7 @@ async function main() {
 main()
 // test 3 passed
 
-// db.remove('user', {key: '831323639808'})
+db.remove('user', {key: '831323639808'})
 // we are not expecting any response
 // test 4 passed
 

@@ -17,7 +17,6 @@ export class Logger {
     private localFileName: string | undefined;
 
     /**
-     * @nyakeisi
      * A class to work with logging file.
      * @param adapter a path to txt file, where to store logs
      * @param folderMode true - store files in folder, otherwise single file.

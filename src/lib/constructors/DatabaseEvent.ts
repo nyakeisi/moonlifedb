@@ -3,10 +3,11 @@
 interface Event_Database {
     table: string,
     folder: string,
-    key: string | null,
-    value: any,
-    resolve: boolean,
-    newline: boolean
+    query?: string | undefined,
+    key?: string | null | undefined,
+    value?: any | object | undefined,
+    resolve?: boolean | undefined,
+    newline?: boolean | undefined
 }
 
 export class DatabaseEvent {

@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import { Check } from '../../Check';
 import { LocalStorage } from '../adapters/LocalStorage';
 import { ExternalConnection } from '../adapters/ExternalConnection';
-import { Formatter } from '../../Constructors';
 const lib = new Check();
 
 interface TableParameters {
@@ -14,7 +13,6 @@ interface TableParameters {
 export class TableCreator {
 
     public adapter: LocalStorage | ExternalConnection
-    public useTabulation: Formatter | undefined;
 
     public tablePath: string;
     public ip: string | undefined;
@@ -29,9 +27,6 @@ export class TableCreator {
      */
     constructor(
         adapter: LocalStorage | ExternalConnection,
-        options?: {
-            useTabulation?: Formatter | undefined
-        }
     ) {
         this.adapter = adapter;
         this.tablePath = this.adapter.tablePath
@@ -40,10 +35,6 @@ export class TableCreator {
             this.ip = this.adapter.ip
             this.port = this.adapter.port
         }
-
-        options && options.useTabulation
-            ? this.useTabulation = options.useTabulation
-            : this.useTabulation = undefined
 
         lib.checkDir(this.tablePath)
     }
@@ -65,7 +56,7 @@ export class TableCreator {
         let result = {};
         if (fs.existsSync(this.tablePath + '/' + name + '.json')) console.log('already exists in the database: overwritten')
         fs.writeFileSync(this.tablePath + '/' + name + '.json', JSON.stringify(result));
-        if (settings && settings.strict) fs.writeFileSync(this.tablePath + '/' + name + '-structure.json', JSON.stringify(settings.strict, null, this.useTabulation == undefined ? '\t' : this.useTabulation.whitespace));
+        if (settings && settings.strict) fs.writeFileSync(this.tablePath + '/' + name + '-structure.json', JSON.stringify(settings.strict));
     }
 }
 

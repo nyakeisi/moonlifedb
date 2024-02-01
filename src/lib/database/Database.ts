@@ -4,7 +4,7 @@ import * as fs from 'fs/promises';
 import _ from 'lodash';
 import { Check } from '../../Check';
 import { LocalStorage, ExternalConnection } from '../../Adapters';
-import { Formatter, DatabaseEvent, Logger } from '../../Constructors';
+import { DatabaseEvent, Logger } from '../../Constructors';
 import { EventEmitter } from "node:events";
 import { DeepKeyFinder } from './DeepKeyFinder'
 
@@ -19,7 +19,6 @@ export class Database extends EventEmitter {
 
     protected alerts: boolean;
     protected ignore: boolean;
-    protected useTabulation: Formatter | undefined;
 
     /**
      * The main class of the database app.
@@ -30,7 +29,6 @@ export class Database extends EventEmitter {
         settings?: {
             alerts?: boolean | undefined,
             ignoreDeprecations?: boolean | undefined,
-            useTabulation?: Formatter | undefined,
         } | undefined
     ) {
         super()
@@ -40,9 +38,6 @@ export class Database extends EventEmitter {
         settings && settings.alerts
             ? this.alerts = settings.alerts
             : this.alerts = false
-        settings && settings.useTabulation
-            ? this.useTabulation = settings.useTabulation
-            : this.useTabulation = undefined
         settings && settings.ignoreDeprecations
             ? this.ignore = settings.ignoreDeprecations
             : this.ignore = false
@@ -140,53 +135,29 @@ export class Database extends EventEmitter {
                 if ((action.key).includes('.')) {
                     if (action.newline && action.newline == true) {
                         _.set(data, action.key, action.value);
-                        if (this.useTabulation != undefined) {
-                            await fs.writeFile(
-                                this.tablePath + '/' + table + '.json',
-                                JSON.stringify(data, null, this.useTabulation.whitespace)
-                            )
-                            resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
-                        } else {
-                            await fs.writeFile(
-                                this.tablePath + '/' + table + '.json',
-                                JSON.stringify(data)
-                            )
-                            resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
-                        }
-                    } else {
-                        let result = dkf.deepFind(data, action.key)
-                        if (result != undefined) {
-                            _.set(data, action.key, action.value);
-                            if (this.useTabulation != undefined) {
-                                await fs.writeFile(
-                                    this.tablePath + '/' + table + '.json',
-                                    JSON.stringify(data, null, this.useTabulation.whitespace)
-                                )
-                                resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
-                            } else {
-                                await fs.writeFile(
-                                    this.tablePath + '/' + table + '.json',
-                                    JSON.stringify(data)
-                                )
-                                resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
-                            }
-                        } else return;
-                    }
-                } else {
-                    data[action.key] = action.value;
-                    if (this.useTabulation != undefined) {
-                        await fs.writeFile(
-                            this.tablePath + '/' + table + '.json',
-                            JSON.stringify(data, null, this.useTabulation.whitespace)
-                        )
-                        resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
-                    } else {
                         await fs.writeFile(
                             this.tablePath + '/' + table + '.json',
                             JSON.stringify(data)
                         )
                         resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
+                    } else {
+                        let result = dkf.deepFind(data, action.key)
+                        if (result != undefined) {
+                            _.set(data, action.key, action.value);
+                            await fs.writeFile(
+                                this.tablePath + '/' + table + '.json',
+                                JSON.stringify(data)
+                            )
+                            resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
+                        } else return;
                     }
+                } else {
+                    data[action.key] = action.value;
+                    await fs.writeFile(
+                        this.tablePath + '/' + table + '.json',
+                        JSON.stringify(data)
+                    )
+                    resolve(await this.get(table, { key: (action.key).length > 1 ? action.key.split('.')[0] : action.key }))
                 }
             }
         )
