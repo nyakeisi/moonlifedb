@@ -109,9 +109,9 @@ export class Snowflake {
 		for (let i = sid.length; i > 0; i-= 4) id = parseInt(sid.substring(i - 4, i), 2).toString(16) + id;
 		let res: number | bigint = BigInt("0x"+id);
 		
-		var object = {};
-			object['result'] = String(res);
-			object['raw'] = {
+		var object = {result: "", raw: {}};
+			object.result = String(res);
+			object.raw = {
 				result: sid,
 
 				epoch: parseInt(t, 2),

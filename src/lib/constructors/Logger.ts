@@ -3,7 +3,7 @@
 import * as fs from 'fs/promises';
 import { Check } from '../../Check';
 import { LocalStorage, ExternalConnection } from '../../Adapters';
-import { Database } from '../database/Database';
+import { ArrayDatabase } from '../database/ArrayDatabase';
 import { DatabaseEvent } from './DatabaseEvent'
 
 interface UserInput {

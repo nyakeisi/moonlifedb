@@ -59,7 +59,7 @@ Source code: [MoonlifeDB on GitHub](https://github.com/nyakeisi/moonlifedb/tree/
 
 # How to use the database?
 
-**WARNING:** The database is currently in **beta** state. It means this build is mostly stable and safe to use!<br />
+**WARNING:** The database is currently in **beta** state. It means this build is mostly stable and safe to use, but still has space to improve!<br />
 
 ## How to start working with Database?
 ### Installing and importing
@@ -69,16 +69,16 @@ npm i moonlifedb@latest
 ```
 After it got installed you need to import it. You can do it like that:
 ```js
-import { Database, LocalStorage } from 'moonlifedb';
+import { ArrayDatabase, LocalStorage } from 'moonlifedb';
 ```
 Or like that:
 ```js
-const { Database, LocalStorage } = require('moonlifedb');
+const { ArrayDatabase, LocalStorage } = require('moonlifedb');
 ```
 You just imported the class and now we have to call the construction. You can do it like that:
 ```js
 const adapter = new LocalStorage({ path: 'path' }) // Note #1
-const db = new Database(adapter)
+const db = new ArrayDatabase(adapter)
 ```
 ***Note #1**: path is an exact path to the **folder**, where you will be storing json files. For example, if you have a folder in the same head folder as project, use "./database" (you can use any name OS allows!)*<br /><br />
 
@@ -86,7 +86,6 @@ Done! Now you can use all functions of the database! But you also have to create
 ### Create your first table!
 There are many ways. The first one is very simple: do it manually. You can just create a json file with any name in the folder you specified in the constructor.<br />
 the second one is more complicated but allows to do way more things. You need to import the **TableCreator** class.
-> **WARNING!** THIS CLASS IS NOT STATED IN FULL DOCUMENTATION!
 ```js
 import { TableCreator, LocalStorage } from 'moonlifedb';
 const adapter = new LocalStorage({ path: './database' }); // this is an example!
@@ -95,7 +94,7 @@ const creator = new TableCreator(adapter);
 creator.create("anyNameHere"); // Note #2, #3
 ```
 ***Note #2**: you can use any name **file system allows**. That means, for example, you can't use dots, start file names with numbers, etc.*<br />
-***Note #3**: In current version it's **not supported**, but it also has second argument to create structure file for this table. It means you can strictly specify what types of values needed for this table.*<br /><br />
+***Note #3**: It also has second argument to create structure file for this table. It means you can strictly specify what types of values needed for this table.* Currently not supported.<br /><br />
 
 ## How to work with Database?
 The Database has some main methods to work with JSON files.<br />
@@ -109,7 +108,7 @@ For example we need to store some info about Bob in "accounts" table:
 }
 ```
 ### Create
-To write it, use `Database#create()` method:
+To write it, use `ArrayDatabase#create()` method:
 ```js
 db.create('accounts', { 
     key: 'Bob', 

@@ -1,7 +1,7 @@
 {
   "name": "moonlifedb",
-  "version": "1.0.0-beta.1",
-  "author": "Lissa Squeens",
+  "version": "1.0.0-BETA",
+  "author": "Renarde, Lissa Squeens",
   "license": "ISC",
   "description": "A JSON database with a bunch of tools and typescript support.",
   "main": "dist/Index.js",
@@ -26,7 +26,10 @@
     "event",
     "events",
     "event manager",
-    "snowflakeid"
+    "snowflakeid",
+    "chunk",
+    "shard",
+    "search"
   ],
   "dependencies": {
     "@types/lodash": "^4.14.191",

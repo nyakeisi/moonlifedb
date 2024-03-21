@@ -5,7 +5,6 @@
         "declaration": true,
         "strict": true,
         "resolveJsonModule": true,
-        "suppressImplicitAnyIndexErrors": true,
         "ignoreDeprecations": "5.0",
         "noImplicitAny": true,
         "outDir": "./dist",

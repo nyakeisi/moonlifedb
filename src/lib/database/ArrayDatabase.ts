@@ -10,11 +10,11 @@ import { EventEmitter } from "node:events";
 import { createInterface } from 'readline'
 
 const lib = new Check();
-type AllowedChunkSize = 512 | 1024 | 2048 | 4096 | 8192 | 16384 | 32768 | 65536;
+type AllowedChunkSize = 512 | 1024 | 2048 | 4096 | 8192 | 16384 | 32768 | 65536 | 131072 | 262144 | 524288 | 1048576 | 2097152 | 4194304 | 8388608 | 16777216 | 33554432 | 67108864 | 134217728 | 268435456 | 536870912 | 1073741824 | 2147483648;
 enum __AndOrOperator { AND = "&&", OR = "||" }
 enum __Operator { GREATER = ">", LESS = "<", GREATEROREQUAL = ">=", LESSOREQUAL = "<=", EQUAL = "==", NOTEQUAL = "!=" }
 
-export class NewDatabase extends EventEmitter {
+export class ArrayDatabase extends EventEmitter {
 
     public adapter: LocalStorage | ExternalConnection;
 
@@ -27,8 +27,9 @@ export class NewDatabase extends EventEmitter {
 
     /**
      * The main class of the database app.
-     * @example const database = new NewDatabase(adapter, { alerts: true });
-     * @version UNSTABLE! STILL HAS SOME MAJOR ISSUES!
+     * @example const database = new ArrayDatabase(adapter, { alerts: true });
+     * @note new and improved version of the database using chunk-based query system.
+     * @note not compatible with the ObjectDatabase structure.
      */
     constructor(
         adapter: LocalStorage | ExternalConnection,
@@ -102,20 +103,18 @@ export class NewDatabase extends EventEmitter {
         query: string,
         _chunksize: AllowedChunkSize,
         _limit: number
-    ): Promise<any|object>
+    ): Promise<Array<any>>
     {
         var __chunksize = _chunksize == undefined ? this.chunksize :_chunksize,
             __limit = _limit == undefined ? -1 : _limit;
         if (__limit < 1 && __limit != -1) throw new Error()
         return new Promise(async (resolve, reject) => {
-            // prepare the request
             var __query = query.split(/(\s&&\s|\s\|\|\s)/g)
             var __bakedQuery: any[] = []
             __query?.forEach((__el: string) => {
                 if (__el.replace(/\s/g,'') === __AndOrOperator.AND || __el.replace(/\s/g,'') === __AndOrOperator.OR) __bakedQuery.push(__el.replace(/\s/g,''))
                 else __bakedQuery.push(__el.split(/\s/g))
             })
-            // create stream and interface to use chunks of data
             const __fstr = createReadStream(this.tablePath + '/' + table + '.json');
             const __rl = createInterface({
                 input: __fstr,
@@ -123,7 +122,6 @@ export class NewDatabase extends EventEmitter {
             });
             let chunk = '';
             var result: Array<any> = [];
-            // go through chunks
             for await (const line of __rl) {
                 chunk += line;
                 if (chunk.length >= __chunksize) {
@@ -152,7 +150,6 @@ export class NewDatabase extends EventEmitter {
                     chunk = '';
                 }
             }
-            // if chunk is incomplete
             if (chunk.length > 0) {
                 if (result.length >= _limit) {
                     __fstr.close(); 
@@ -176,35 +173,51 @@ export class NewDatabase extends EventEmitter {
                     else { if (this.finalize(__boolres, __operres) == true) result.push(object); }
                 }
             }
-            // close the stream and resolve
             __fstr.close(); 
             resolve(result)
         })
     }
 
-    // STILL IN DEVELOPMENT
+    // IN DEV
     private async put (
         table: string,
         value: object
     ): Promise<any>
     {
         return new Promise(async (resolve, reject) => {
+            var __csv = JSON.stringify(value);
             const writer = createWriteStream(this.tablePath + '/' + table + '.json');
-            const buffer = Buffer.alloc(0);
+            const buffer = Buffer.alloc(__csv.length);
             buffer.write(JSON.stringify(value));
             writer.write(buffer);
             writer.end();
         })
     }
 
+    // -----
+
+    /**
+     * Creates a new line in the database.
+     * @note It's async, so it returns a promise.
+     * To resolve value use "resolve: true" with await construction.
+     * @warning Pointers are not allowed in this method.
+     * @example const result = await ObjectDatabase.create('table', { key: "example", value: "exampleValue" })
+     * @param action.resolve resolves value of this key after it's creation in database.
+     * @returns {Promise<any|void>}
+     * @async
+     */
+
+
+    // IN DEV
     public async create (
         table: string,
-        value: object
-    ): Promise<void> {
+        data?: object
+    ): Promise<String> {
         lib.checkFile(this.tablePath, table)
         return new Promise(
             async (resolve, reject) => {
-                await this.put(table, value);
+                let __idres = await this.put(table, data ? data : {});
+                resolve(__idres);
                 this.emit(
                     "access",
                     new DatabaseEvent(
@@ -213,7 +226,7 @@ export class NewDatabase extends EventEmitter {
                         {
                             table: table,
                             folder: this.adapter.tablePath,
-                            value: value,
+                            value: __idres,
                             newline: true
                         }
                     )
@@ -222,10 +235,17 @@ export class NewDatabase extends EventEmitter {
         )
     }
 
+    /**
+     * Returns an array with all occurences, based on query conditions.
+     * @example const result = await ArrayDatabase.find('table', 'name == "Renarde" && age >= 18')
+     * @note Returns an array of all ocurences where the end condition is true. Otherwise returns an empty array.
+     * @returns {Array<any>}
+     */
+
     public async find (
         table: string,
         query: string
-    ): Promise<any|object|undefined>
+    ): Promise<Array<any>>
     {
         return new Promise(
             async (resolve, reject) => {
